@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تستر پیشرفته رجکس</title>
+    <style>
+        :root {
+            --bg-main: #121212;
+            --bg-surface: #1e1e1e;
+            --bg-elevated: #2d2d2d;
+            --primary: #bb86fc;
+            --primary-variant: #3700b3;
+            --secondary: #03dac6;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border: #404040;
+            --error: #cf6679;
+            --match-bg: rgba(187, 134, 252, 0.2);
+            
+            /* رنگ‌های گروه‌ها */
+            --g1: #ff7b72; --g2: #79c0ff; --g3: #d2a8ff; --g4: #7ee787; --g5: #ffa657;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3, h4 { color: var(--primary); }
+
+        /* بخش ورودی الگو */
+        .regex-header {
+            background: var(--bg-surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        input, textarea {
+            background-color: var(--bg-main);
+            color: var(--secondary);
+            border: 1px solid var(--border);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 16px;
+            direction: ltr;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.3);
+        }
+
+        #regex-pattern { flex: 4; font-size: 18px; }
+        #regex-flags { flex: 1; text-align: center; font-size: 18px; }
+
+        .error-msg { color: var(--error); font-size: 14px; margin-top: 10px; min-height: 20px; }
+
+        /* استایل‌های بخش اسنیپت‌ها */
+        .snippets-container { margin-top: 15px; padding: 15px; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; }
+        .snippets-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+        .snippet-box { background: #1e1e1e; padding: 10px; border-radius: 6px; position: relative; direction: ltr; text-align: left; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .snippet-title { margin-bottom: 8px; color: var(--secondary); font-weight: bold; font-family: sans-serif; font-size: 13px; }
+        .snippet-code { margin: 0; white-space: pre-wrap; word-break: break-all; color: #d4d4d4; font-family: Consolas, monospace; font-size: 13px; flex-grow: 1; }
+        .snippet-copy-btn { position: absolute; top: 5px; right: 5px; background: var(--primary); color: #000; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.2s; }
+        .snippet-copy-btn:hover { opacity: 0.8; }
+
+        /* ساختار دو ستونه تست‌ها */
+        .main-workspace {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        /* لیست تست‌ها */
+        .test-cases-col { display: flex; flex-direction: column; gap: 15px; }
+        
+        .test-case {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .test-input {
+            width: 100%;
+            height: 80px;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .test-output {
+            background: var(--bg-elevated);
+            padding: 12px;
+            border-radius: 8px;
+            min-height: 50px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+            word-break: break-all;
+            border-left: 3px solid var(--border);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            transition: opacity 0.2s;
+            margin-bottom: 20px;
+        }
+        .btn:hover { opacity: 0.8; }
+        .btn-remove { background: var(--error); color: #fff; padding: 5px 10px; position: absolute; top: 15px; left: 15px; }
+
+        /* پنل کناری (گروه‌ها) */
+        .side-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .side-panel h3 { margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .match-block { margin-bottom: 15px; background: var(--bg-elevated); padding: 10px; border-radius: 6px; }
+        .match-block strong { color: var(--secondary); direction: ltr; display: block; text-align: left; margin-bottom: 5px;}
+        .group-line { direction: ltr; text-align: left; font-family: 'Consolas', monospace; font-size: 14px; margin-left: 10px;}
+
+        /* جدول راهنما */
+        .cheatsheet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        table { width: 100%; border-collapse: collapse; direction: ltr; text-align: left; font-size: 14px; }
+        th, td { border: 1px solid var(--border); padding: 8px 12px; background: var(--bg-surface); }
+        th { background-color: var(--bg-elevated); color: var(--primary); }
+        code { color: var(--secondary); font-family: 'Consolas', monospace; font-weight: bold; background: rgba(3, 218, 198, 0.1); padding: 2px 5px; border-radius: 3px; }
+        .rtl-text { direction: rtl; text-align: right; }
+
+        /* فوتر */
+        .site-footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 15px;
+            background: var(--bg-surface);
+            border-radius: 12px;
+        }
+        .site-footer a { color: var(--primary); text-decoration: none; transition: color 0.3s; }
+        .site-footer a:hover { color: var(--secondary); }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="rtl-text">تستر پیشرفته رجکس (چندگانه + گروه‌ها)</h1>
+    
+    <div class="regex-header">
+        <label>الگوی رجکس (Pattern) و فلگ‌ها (Flags):</label>
+        <div class="input-group">
+            <input type="text" id="regex-pattern" placeholder="مثال: (\d{4})-(\d{2})-(\d{2})" >
+            <input type="text" id="regex-flags" placeholder="gm" value="gm">
+        </div>
+        <div id="error-msg" class="error-msg rtl-text"></div>
+        
+        <div class="snippets-container">
+            <h3 style="margin-top: 0; font-size: 14px; color: var(--text-primary);">کپی کد برای زبان‌های برنامه‌نویسی:</h3>
+            <div id="code-snippets" class="snippets-grid">
+                <!-- کدها اینجا با جاوااسکریپت ساخته می‌شوند -->
+            </div>
+        </div>
+    </div>
+
+    <button class="btn" id="add-test-btn">+ افزودن تست جدید</button>
+
+    <div class="main-workspace">
+        <div class="test-cases-col" id="tests-container"></div>
+
+        <div class="side-panel" id="side-panel">
+            <h3>جزئیات گروه‌ها (Capture Groups)</h3>
+            <div id="groups-output" class="rtl-text" style="color: var(--text-secondary); font-size: 14px;">
+                الگویی بنویسید و متنی وارد کنید تا گروه‌ها اینجا نمایش داده شوند.
+            </div>
+        </div>
+    </div>
+    
+    <hr style="border-color: var(--border); margin: 40px 0;">
+    
+    <div class="cheatsheet-section">
+        <h2 class="rtl-text">راهنمای جامع رجکس (Cheatsheet)</h2>
+        
+        <div class="cheatsheet-grid">
+            <!-- کاراکترهای عمومی -->
+            <div>
+                <h4 class="rtl-text">متاکاراکترها (Meta-characters)</h4>
+                <table>
+                    <tbody>
+                        <tr><td><code>.</code></td><td class="rtl-text">هر کاراکتری (جز خط جدید)</td></tr>
+                        <tr><td><code>\\w</code></td><td class="rtl-text">حروف و اعداد (a-z, A-Z, 0-9, _)</td></tr>
+                        <tr><td><code>\\W</code></td><td class="rtl-text">هر چیزی جز حروف و اعداد</td></tr>
+                        <tr><td><code>\\d</code></td><td class="rtl-text">اعداد (0-9)</td></tr>
+                        <tr><td><code>\\D</code></td><td class="rtl-text">هر چیزی جز اعداد</td></tr>
+                        <tr><td><code>\\s</code></td><td class="rtl-text">فاصله‌ها (اسپیس، تب، خط جدید)</td></tr>
+                        <tr><td><code>\\S</code></td><td class="rtl-text">هر چیزی جز فاصله</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- لنگرها -->
+            <div>
+                <h4 class="rtl-text">مرزها و لنگرها (Anchors)</h4>
+                <table>
+                    <tbody>
+                        <tr><td><code>^</code></td><td class="rtl-text">شروع رشته (یا خط در حالت <code>m</code>)</td></tr>
+                        <tr><td><code>$</code></td><td class="rtl-text">پایان رشته (یا خط در حالت <code>m</code>)</td></tr>
+                        <tr><td><code>\\b</code></td><td class="rtl-text">مرز کلمه (Word boundary)</td></tr>
+                        <tr><td><code>\\B</code></td><td class="rtl-text">غیر از مرز کلمه</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- تکرارکننده‌ها -->
+            <div>
+                <h4 class="rtl-text">تکرارکننده‌ها (Quantifiers)</h4>
+                <table>
+                    <tbody>
+                        <tr><td><code>*</code></td><td class="rtl-text">۰ یا بیشتر (صفر تا بی‌نهایت)</td></tr>
+                        <tr><td><code>+</code></td><td class="rtl-text">۱ یا بیشتر</td></tr>
+                        <tr><td><code>?</code></td><td class="rtl-text">۰ یا ۱ بار (اختیاری)</td></tr>
+                        <tr><td><code>{n}</code></td><td class="rtl-text">دقیقاً n بار</td></tr>
+                        <tr><td><code>{n,}</code></td><td class="rtl-text">حداقل n بار</td></tr>
+                        <tr><td><code>{n,m}</code></td><td class="rtl-text">بین n و m بار</td></tr>
+                        <tr><td><code>+?</code> یا <code>*?</code></td><td class="rtl-text">تکرار تنبل (Lazy/Non-greedy)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- کلاس‌ها -->
+            <div>
+                <h4 class="rtl-text">مجموعه‌ها (Character Classes)</h4>
+                <table>
+                    <tbody>
+                        <tr><td><code>[abc]</code></td><td class="rtl-text">یکی از کاراکترهای a یا b یا c</td></tr>
+                        <tr><td><code>[^abc]</code></td><td class="rtl-text">هیچکدام از a یا b یا c</td></tr>
+                        <tr><td><code>[a-z]</code></td><td class="rtl-text">محدوده (حروف کوچک انگلیسی)</td></tr>
+                        <tr><td><code>[0-9A-F]</code></td><td class="rtl-text">ترکیب محدوده‌ها (کد هگزادسیمال)</td></tr>
+                        <tr><td><code>a|b</code></td><td class="rtl-text">جایگزینی (Alternation) - a یا b</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- گروه‌ها و Lookaround -->
+            <div style="grid-column: 1 / -1;">
+                <h4 class="rtl-text">گروه‌ها و لوک‌اروندها (Groups & Lookarounds)</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                    <table>
+                        <tbody>
+                            <tr><td><code>(abc)</code></td><td class="rtl-text">گروه کردن و استخراج (Capturing Group)</td></tr>
+                            <tr><td><code>(?:abc)</code></td><td class="rtl-text">گروه کردن بدون استخراج (Non-capturing)</td></tr>
+                            <tr><td><code>(?&lt;name&gt;abc)</code></td><td class="rtl-text">گروه نام‌دار (Named Group)</td></tr>
+                            <tr><td><code>\\1</code></td><td class="rtl-text">ارجاع به گروه استخراج شده اول (Backreference)</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <tbody>
+                            <tr><td><code>(?=abc)</code></td><td class="rtl-text">شرط وجود در جلو (Positive Lookahead)</td></tr>
+                            <tr><td><code>(?!abc)</code></td><td class="rtl-text">شرط عدم وجود در جلو (Negative Lookahead)</td></tr>
+                            <tr><td><code>(?&lt;=abc)</code></td><td class="rtl-text">شرط وجود در قبل (Positive Lookbehind)</td></tr>
+                            <tr><td><code>(?&lt;!abc)</code></td><td class="rtl-text">شرط عدم وجود در قبل (Negative Lookbehind)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div>ایلیا اسماعیلی | <a href="mailto:i.esmaeili@mail.sbu.ac.ir">i.esmaeili@mail.sbu.ac.ir</a></div>
+        <div style="margin-top: 10px; font-size: 13px;">ساخته شده با ❤️ + Gemini</div>
+    </footer>
+</div>
+
+<script>
+    const regexPattern = document.getElementById('regex-pattern');
+    const regexFlags = document.getElementById('regex-flags');
+    const errorMsg = document.getElementById('error-msg');
+    const testsContainer = document.getElementById('tests-container');
+    const groupsOutput = document.getElementById('groups-output');
+    const addTestBtn = document.getElementById('add-test-btn');
+
+    const groupColors = ['var(--g1)', 'var(--g2)', 'var(--g3)', 'var(--g4)', 'var(--g5)'];
+    let testCounter = 0;
+
+    function createTestCase(initialText = '') {
+        testCounter++;
+        const id = testCounter;
+        
+        const div = document.createElement('div');
+        div.className = 'test-case';
+        div.innerHTML = `
+            <button class="btn-remove" onclick="this.parentElement.remove(); updateAll();">حذف</button>
+            <label class="rtl-text" style="display:block; margin-bottom: 5px;">متن تست ${id}:</label>
+            <textarea class="test-input" id="test-input-${id}" placeholder="متن تست را اینجا بنویسید...">${initialText}</textarea>
+            <label class="rtl-text" style="display:block; margin: 10px 0 5px;">نتیجه (Matches):</label>
+            <div class="test-output" id="test-output-${id}"></div>
+        `;
+        testsContainer.appendChild(div);
+        document.getElementById(`test-input-${id}`).addEventListener('input', updateAll);
+    }
+
+    function updateAll() {
+        errorMsg.textContent = '';
+        groupsOutput.innerHTML = '';
+        
+        const patternStr = regexPattern.value;
+        let flagsStr = regexFlags.value;
+
+        if (!patternStr) {
+            clearOutputs();
+            generateSnippets();
+            return;
+        }
+
+        if (!flagsStr.includes('g')) flagsStr += 'g';
+        if (!flagsStr.includes('d')) flagsStr += 'd';
+
+        let regex;
+        try {
+            regex = new RegExp(patternStr, flagsStr);
+            if (regex.test('')) {
+                errorMsg.textContent = 'هشدار: این الگو با رشته خالی مچ می‌شود و ممکن است مرورگر را دچار مشکل کند.';
+                clearOutputs();
+                generateSnippets();
+                return;
+            }
+        } catch (e) {
+            errorMsg.textContent = 'خطا در الگو: ' + e.message;
+            clearOutputs();
+            generateSnippets();
+            return;
+        }
+
+        let sidePanelHTML = '';
+        let globalMatchCounter = 0;
+        const testCases = document.querySelectorAll('.test-case');
+        
+        testCases.forEach((testCase) => {
+            const textarea = testCase.querySelector('.test-input');
+            const outputDiv = testCase.querySelector('.test-output');
+            const text = textarea.value;
+
+            if (!text) {
+                outputDiv.innerHTML = '';
+                return;
+            }
+
+            let resultHTML = '';
+            let lastIndex = 0;
+            let match;
+            regex.lastIndex = 0;
+
+            try {
+                while ((match = regex.exec(text)) !== null) {
+                    globalMatchCounter++;
+                    resultHTML += escapeHTML(text.substring(lastIndex, match.index));
+
+                    let matchStr = match[0];
+                    let groupDataHTML = `<div class="match-block"><strong>Match ${globalMatchCounter}: <code>${escapeHTML(matchStr)}</code></strong>`;
+                    
+                    if (match.indices && match.indices.length > 1) {
+                        for (let i = 1; i < match.indices.length; i++) {
+                            if (match.indices[i]) {
+                                const color = groupColors[(i - 1) % groupColors.length];
+                                groupDataHTML += `<div class="group-line" style="color: ${color}">Group ${i}: <span>${escapeHTML(match[i])}</span></div>`;
+                            }
+                        }
+                    } else {
+                        for (let i = 1; i < match.length; i++) {
+                            if (match[i] !== undefined) {
+                                const color = groupColors[(i - 1) % groupColors.length];
+                                groupDataHTML += `<div class="group-line" style="color: ${color}">Group ${i}: <span>${escapeHTML(match[i])}</span></div>`;
+                            }
+                        }
+                    }
+                    
+                    groupDataHTML += `</div>`;
+                    sidePanelHTML += groupDataHTML;
+
+                    resultHTML += `<span style="background-color: var(--match-bg); border-radius: 3px; border-bottom: 2px solid var(--primary);">${escapeHTML(matchStr)}</span>`;
+                    lastIndex = regex.lastIndex;
+
+                    if (match.index === regex.lastIndex) regex.lastIndex++;
+                }
+                
+                resultHTML += escapeHTML(text.substring(lastIndex));
+                outputDiv.innerHTML = resultHTML;
+            } catch (e) {
+                outputDiv.innerHTML = '<span style="color:var(--error)">خطا در پردازش متن</span>';
+            }
+        });
+
+        groupsOutput.innerHTML = globalMatchCounter > 0 ? sidePanelHTML : 'موردی یافت نشد.';
+        generateSnippets();
+    }
+
+    function clearOutputs() {
+        document.querySelectorAll('.test-output').forEach(el => el.innerHTML = '');
+        groupsOutput.innerHTML = 'الگویی بنویسید و متنی وارد کنید تا گروه‌ها اینجا نمایش داده شوند.';
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag])
+        );
+    }
+
+    function generateSnippets() {
+        const pattern = regexPattern.value;
+        const flags = regexFlags.value;
+        const snippetsDiv = document.getElementById('code-snippets');
+        
+        if (!pattern) {
+            snippetsDiv.innerHTML = '';
+            return;
+        }
+
+        const javaPattern = pattern.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        const csharpPattern = pattern.replace(/"/g, '""');
+        const phpPattern = pattern.replace(/\//g, '\\/');
+
+        // استفاده از آبجکت برای مدیریت جداگانه متن نمایشی و متن قابل کپی
+        const languages = [
+            { 
+                name: 'JavaScript', 
+                display: `const regex = /${pattern}/${flags};`, 
+                copy: `const regex = /${pattern}/${flags};` 
+            },
+            { 
+                name: 'Python', 
+                display: `import re\nregex = re.compile(r"${pattern}")`, 
+                copy: `${pattern}`// import re کپی نمی‌شود
+            },
+            { 
+                name: 'PHP', 
+                display: `$re = '/${phpPattern}/${flags}';`, 
+                copy: `$re = '/${phpPattern}/${flags}';` 
+            },
+            { 
+                name: 'Java', 
+                display: `Pattern regex = Pattern.compile("${javaPattern}");`, 
+                copy: `${javaPattern}` 
+            },
+            { 
+                name: 'C#', 
+                display: `Regex regex = new Regex(@"${csharpPattern}");`, 
+                copy: `Regex regex = new Regex(@"${csharpPattern}");` 
+            }
+        ];
+
+        snippetsDiv.innerHTML = '';
+        
+        languages.forEach(lang => {
+            const box = document.createElement('div');
+            box.className = 'snippet-box';
+            
+            const title = document.createElement('div');
+            title.className = 'snippet-title';
+            title.innerText = lang.name;
+            
+            const pre = document.createElement('pre');
+            pre.className = 'snippet-code';
+            pre.innerText = lang.display;
+            
+            const btn = document.createElement('button');
+            btn.className = 'snippet-copy-btn';
+            btn.innerText = 'کپی';
+            
+            // با این روش، باگ کاراکترهای خاص در HTML Attribute (مانند کوتیشن و بک‌اسلش) برطرف می‌شود
+            btn.onclick = () => copyToClipboard(btn, lang.copy);
+            
+            box.appendChild(title);
+            box.appendChild(pre);
+            box.appendChild(btn);
+            
+            snippetsDiv.appendChild(box);
+        });
+    }
+
+    function copyToClipboard(btn, text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = 'کپی شد!';
+            btn.style.background = '#28a745';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = 'var(--primary)';
+                btn.style.color = '#000';
+            }, 1500);
+        });
+    }
+
+    regexPattern.addEventListener('input', updateAll);
+    regexFlags.addEventListener('input', updateAll);
+    addTestBtn.addEventListener('click', () => { createTestCase(''); updateAll(); });
+
+    
+    
+    updateAll();
+</script>
+</body>
+</html>
