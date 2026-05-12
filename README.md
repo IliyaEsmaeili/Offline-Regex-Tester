@@ -34,3 +34,11 @@ Generated using prompt engineering with **Google Gemini**.
 
 ---
 *Made with ❤️ + Gemini*
+
+---
+
+## Screenshots
+
+![Main Interface](Screen-Shots/index1.png)
+
+![Main Interface_2]Screen-Shots/index2.png)
