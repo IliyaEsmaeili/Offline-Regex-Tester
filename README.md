@@ -264,4 +264,4 @@ class Program {
 - **Contact:** [i.esmaeili@mail.sbu.ac.ir](mailto:i.esmaeili@mail.sbu.ac.ir)
 - **Generation:** Documentation structure, technical data, and formatting generated with Google Gemini.
 
-چرا دکمه های table of contents ;کار نمیکنه ؟ 
+ 
