@@ -59,13 +59,21 @@ Generated using prompt engineering with **Google Gemini**.
 
 *(Note: Ensure your screenshots are placed in the `Screen-Shots` directory).*
 
+
 ---
 
 ## 📚 The Complete Regex Guide
 
 > 💡 **Tip:** Clone the repository and open `index.html` to test all the patterns below interactively!
 
-### What is a Regular Expression?
+### 🌍 Is this guide for all programming languages?
+**Yes!** 
+While this tool is built using HTML & JavaScript and uses the JS Regex engine to test your patterns live in the browser, **the core Regular Expression concepts taught in this guide are universal.** 
+
+Whether you are coding in **Python, PHP, Java, C#, Ruby, or Go**, concepts like Metacharacters (`\d`, `\w`), Quantifiers (`*`, `+`, `?`), Assertions (`^`, `$`), and the Common Regex Patterns (Emails, Phone numbers, etc.) apply equally to your language. The guide also includes a dedicated section showing how to implement these patterns across different programming languages.
+
+
+# What is a Regular Expression?
 A regular expression is a sequence of characters that forms a search pattern. When you search for data in a text, you can use this search pattern to describe what you are searching for. It can be a single character or a more complicated pattern.
 
 ### JavaScript RegExp Flags
