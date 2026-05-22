@@ -11,11 +11,11 @@ Generated using prompt engineering with **Google Gemini**.
 
 ## 📑 Table of Contents
 
-- [About the Tester App](#about-the-tester-app)
+- [About the Tester App](#-about-the-tester-app)
   - [Features](#features)
   - [How to Use](#how-to-use)
   - [Screenshots](#screenshots)
-- [The Complete Regex Guide](#the-complete-regex-guide)
+- [The Complete Regex Guide](#-the-complete-regex-guide)
   - [What is a Regular Expression?](#what-is-a-regular-expression)
   - [JavaScript RegExp Flags](#javascript-regexp-flags)
   - [RegExp Group Modifiers](#regexp-group-modifiers)
@@ -26,15 +26,14 @@ Generated using prompt engineering with **Google Gemini**.
   - [RegExp Assertions (Anchors & Boundaries)](#regexp-assertions-anchors--boundaries)
   - [RegExp Quantifiers](#regexp-quantifiers)
   - [RegExp Groups](#regexp-groups)
-- [Common Regex Patterns](#common-regex-patterns)
-- [Using Regex in Programming Languages](#using-regex-in-programming-languages)
+- [Common Regex Patterns](#-common-regex-patterns)
+- [Using Regex in Programming Languages](#-using-regex-in-programming-languages)
   - [JavaScript](#javascript)
   - [Python](#python)
   - [PHP](#php)
   - [Java](#java)
   - [C#](#c)
-- [Author & Credits](#author--credits)
-
+- [Author & Credits](#-author--credits)
 
 ---
 
@@ -256,3 +255,5 @@ class Program {
 - **Author:** Iliya Esmaeili
 - **Contact:** [i.esmaeili@mail.sbu.ac.ir](mailto:i.esmaeili@mail.sbu.ac.ir)
 - **Generation:** Documentation structure, technical data, and formatting generated with Google Gemini.
+
+چرا دکمه های table of contents ;کار نمیکنه ؟ 
